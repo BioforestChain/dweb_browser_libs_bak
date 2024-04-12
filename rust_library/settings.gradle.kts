@@ -1,5 +1,6 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
+  includeBuild("../third_party/uniffi-kotlin-multiplatform-bindings/build-logic")
   repositories {
     google {
       mavenContent {
@@ -25,6 +26,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "rust-library"
-include(":ziplib")
-include(":reverse_proxy")
+//include(":ziplib")
+//include(":reverse_proxy")
 include(":multipart")
+//include(":biometrics")

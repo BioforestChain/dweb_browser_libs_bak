@@ -1,6 +1,13 @@
+import com.android.build.gradle.BaseExtension
+import io.gitlab.trixnity.gradle.CargoHost
+import io.gitlab.trixnity.gradle.cargo.dsl.android
+
 plugins {
   id(libs.plugins.kotlinxMultiplatform.get().pluginId)
   id(libs.plugins.androidLibrary.get().pluginId)
+  id(libs.plugins.kotlinxAtomicfu.get().pluginId) version libs.versions.kotlin
+  id("io.gitlab.trixnity.uniffi.kotlin.multiplatform")
+  id("io.gitlab.trixnity.cargo.kotlin.multiplatform")
 }
 
 kotlin {
@@ -16,58 +23,36 @@ kotlin {
     languageVersion.set(JavaLanguageVersion.of(libs.versions.jvmTarget.get()))
   }
 
-  listOf(
-    iosX64(),
-    iosArm64(),
-    iosSimulatorArm64()
-  ).forEach {
-    it.binaries.framework {
-      baseName = "multipart"
-    }
-    val main by it.compilations.getting
-    main.cinterops.create("multipart") {
-      includeDirs(project.file("src/nativeInterop/cinterop/headers/multipart"), project.file("src/libs/${it.targetName}"))
-    }
-  }
+  mingwX64()
 
-  @Suppress("OPT_IN_USAGE")
-  applyDefaultHierarchyTemplate {
-    common {
-      group("jvm") {
-        withJvm()
-        withAndroidTarget()
-      }
-      withIos()
-    }
+  if(CargoHost.Platform.MacOS.isCurrent) {
+    iosX64()
+    iosArm64()
+    iosSimulatorArm64()
+    macosArm64()
+    macosX64()
   }
 
   sourceSets.all {
     languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
   }
-  sourceSets.commonMain.dependencies {
-    api(libs.kotlinx.atomicfu)
-    implementation(libs.squareup.okio)
-    implementation(libs.kotlinx.datetime)
-    implementation(libs.kotlinx.coroutines.core)
-  }
-  sourceSets.commonTest.dependencies {
-    kotlin("test")
-  }
-
-  sourceSets.androidMain.dependencies {
-    api(libs.java.jna.map {
-      project.dependencies.create(it, closureOf<ExternalModuleDependency> {
-        artifact {
-          type = "aar"
-        }
-      })
-    })
-  }
-
   jvm("desktop")
-  val desktopMain = sourceSets.getByName("desktopMain")
-  desktopMain.dependencies {
-    api(libs.java.jna)
+}
+
+cargo {
+//  builds.all {
+//    variants.forEach {
+//      println("QAQ ${it.rustTarget.rustTriple}")
+//      it.profile = CargoProfile.Release
+//    }
+//  }
+}
+
+uniffi {
+  bindgenCratePath = rootProject.layout.projectDirectory.dir("../third_party/uniffi-kotlin-multiplatform-bindings/bindgen")
+  generateFromUdl {
+    udlFile = layout.projectDirectory.file("uniffi/src/multipart.udl")
+    namespace = "multipart"
   }
 }
 
@@ -77,5 +62,8 @@ android {
   defaultConfig {
     minSdk = libs.versions.minSdkVersion.get().toInt()
     consumerProguardFiles("consumer-rules.pro")
+    ndk {
+      abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+    }
   }
 }
