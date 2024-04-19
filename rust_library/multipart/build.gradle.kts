@@ -1,6 +1,8 @@
 import io.gitlab.trixnity.gradle.CargoHost
 import io.gitlab.trixnity.gradle.Variant
 import io.gitlab.trixnity.gradle.cargo.dsl.android
+import io.gitlab.trixnity.gradle.cargo.rust.profiles.CargoProfile
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   id(libs.plugins.kotlinxMultiplatform.get().pluginId)
@@ -13,8 +15,10 @@ plugins {
 kotlin {
   androidTarget {
     compilations.all {
-      kotlinOptions {
-        jvmTarget = libs.versions.jvmTarget.get()
+      compileTaskProvider.configure {
+        compilerOptions {
+          jvmTarget.set(JvmTarget.fromTarget(libs.versions.jvmTarget.get()))
+        }
       }
     }
   }
@@ -40,12 +44,6 @@ kotlin {
 }
 
 cargo {
-//  builds.all {
-//    variants.forEach {
-//      println("QAQ ${it.rustTarget.rustTriple}")
-//      it.profile = CargoProfile.Release
-//    }
-//  }
   packageDirectory = layout.projectDirectory.dir("uniffi")
   jvmVariant = Variant.Release
   nativeVariant = Variant.Release
@@ -54,9 +52,6 @@ cargo {
       it.profile = CargoProfile.Release
     }
   }
-//  android.defaultConfig {
-//    ndk.abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-//  }
 }
 
 uniffi {
