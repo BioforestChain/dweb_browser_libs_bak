@@ -1,7 +1,6 @@
 import io.gitlab.trixnity.gradle.CargoHost
 import io.gitlab.trixnity.gradle.Variant
 import io.gitlab.trixnity.gradle.cargo.dsl.android
-import io.gitlab.trixnity.gradle.cargo.rust.profiles.CargoProfile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -47,11 +46,11 @@ cargo {
   packageDirectory = layout.projectDirectory.dir("uniffi")
   jvmVariant = Variant.Release
   nativeVariant = Variant.Release
-  builds.android {
-    variants.forEach {
-      it.profile = CargoProfile.Release
-    }
-  }
+//  builds.android {
+//    variants.forEach {
+//      it.profile = CargoProfile.Release
+//    }
+//  }
 }
 
 uniffi {
