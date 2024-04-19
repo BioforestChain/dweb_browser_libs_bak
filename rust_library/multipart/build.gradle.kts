@@ -1,5 +1,5 @@
-import com.android.build.gradle.BaseExtension
 import io.gitlab.trixnity.gradle.CargoHost
+import io.gitlab.trixnity.gradle.Variant
 import io.gitlab.trixnity.gradle.cargo.dsl.android
 
 plugins {
@@ -45,6 +45,17 @@ cargo {
 //      println("QAQ ${it.rustTarget.rustTriple}")
 //      it.profile = CargoProfile.Release
 //    }
+//  }
+  packageDirectory = layout.projectDirectory.dir("uniffi")
+  jvmVariant = Variant.Release
+  nativeVariant = Variant.Release
+  builds.android {
+    variants.forEach {
+      it.profile = CargoProfile.Release
+    }
+  }
+//  android.defaultConfig {
+//    ndk.abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
 //  }
 }
 
