@@ -1,0 +1,14 @@
+namespace geolocation {
+    void location_provider_create(string mmid, boolean precise, double distance, LocationProviderCallback callback);
+    void request_always_authorization(string mmid);
+    void request_when_in_use_authorization(string mmid);
+    void request_location(string mmid);
+    i32 current_location_authorization_status(string mmid);
+    void start_updating_location(string mmid);
+    void stop_updating_location(string mmid);
+};
+
+callback interface LocationProviderCallback {
+    void on_authenorization_callback(i32 status);
+    void on_location_callback(double accuracy, double latitude, double longitude, double? altitude, double? altitudeAccuracy, double? heading, double? speed);
+};

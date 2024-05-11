@@ -1,0 +1,3 @@
+staticLibraries = libgeolocation.a
+package = geolocation.cinterop
+headers = geolocation.h
