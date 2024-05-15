@@ -2,24 +2,24 @@ package geolocation
 
 
 
-interface LocationProviderCallback {
-    fun `onAuthenorizationCallback`(`status`: Int)
-    fun `onLocationCallback`(`accuracy`: Double, `latitude`: Double, `longitude`: Double, `altitude`: Double?, `altitudeAccuracy`: Double?, `heading`: Double?, `speed`: Double?)
+interface LocationManagerCallback {
+    fun `onAuthorizationStatus`(`status`: Int)
+    fun `onLocation`(`accuracy`: Double, `latitude`: Double, `longitude`: Double, `altitude`: Double?, `altitudeAccuracy`: Double?, `heading`: Double?, `speed`: Double?)
     
 }
 
-object ForeignCallbackTypeLocationProviderCallback {
+object ForeignCallbackTypeLocationManagerCallback {
     @Suppress("TooGenericExceptionCaught")
     fun invoke(handle: Handle, method: Int, args: RustBuffer, outBuf: RustBufferPointer): Int {
-        val cb = FfiConverterTypeLocationProviderCallback.lift(handle)
+        val cb = FfiConverterTypeLocationManagerCallback.lift(handle)
         return when (method) {
             IDX_CALLBACK_FREE -> {
-                FfiConverterTypeLocationProviderCallback.drop(handle)
+                FfiConverterTypeLocationManagerCallback.drop(handle)
                 0
             }
             1 -> {
                 try {
-                    val buffer = this.`invokeOnAuthenorizationCallback`(cb, args)
+                    val buffer = this.`invokeOnAuthorizationStatus`(cb, args)
                     // Success
                     outBuf.setValue(buffer)
                     1
@@ -33,7 +33,7 @@ object ForeignCallbackTypeLocationProviderCallback {
             }
             2 -> {
                 try {
-                    val buffer = this.`invokeOnLocationCallback`(cb, args)
+                    val buffer = this.`invokeOnLocation`(cb, args)
                     // Success
                     outBuf.setValue(buffer)
                     1
@@ -57,10 +57,10 @@ object ForeignCallbackTypeLocationProviderCallback {
     }
 
     
-    private fun `invokeOnAuthenorizationCallback`(kotlinCallbackInterface: LocationProviderCallback, args: RustBuffer): RustBuffer =
+    private fun `invokeOnAuthorizationStatus`(kotlinCallbackInterface: LocationManagerCallback, args: RustBuffer): RustBuffer =
         try {
             val buf = checkNotNull(args.toBuffer()) { "No Buffer in RustBuffer; this is a Uniffi bug" }
-            kotlinCallbackInterface.`onAuthenorizationCallback`(
+            kotlinCallbackInterface.`onAuthorizationStatus`(
                     FfiConverterInt.read(buf)
                     )
             .let { emptyRustBuffer() }
@@ -69,10 +69,10 @@ object ForeignCallbackTypeLocationProviderCallback {
         }
 
     
-    private fun `invokeOnLocationCallback`(kotlinCallbackInterface: LocationProviderCallback, args: RustBuffer): RustBuffer =
+    private fun `invokeOnLocation`(kotlinCallbackInterface: LocationManagerCallback, args: RustBuffer): RustBuffer =
         try {
             val buf = checkNotNull(args.toBuffer()) { "No Buffer in RustBuffer; this is a Uniffi bug" }
-            kotlinCallbackInterface.`onLocationCallback`(
+            kotlinCallbackInterface.`onLocation`(
                     FfiConverterDouble.read(buf), 
                     FfiConverterDouble.read(buf), 
                     FfiConverterDouble.read(buf), 
@@ -89,12 +89,12 @@ object ForeignCallbackTypeLocationProviderCallback {
     
 }
 
-object FfiConverterTypeLocationProviderCallback: FfiConverterCallbackInterface<LocationProviderCallback>() {
+object FfiConverterTypeLocationManagerCallback: FfiConverterCallbackInterface<LocationManagerCallback>() {
     override fun register(lib: UniFFILib) {
         rustCall() { status ->
-            lib.ffi_geolocation_45e2_LocationProviderCallback_init_callback(ForeignCallbackTypeLocationProviderCallback.toForeignCallback(), status)
+            lib.ffi_geolocation_1966_LocationManagerCallback_init_callback(ForeignCallbackTypeLocationManagerCallback.toForeignCallback(), status)
         }
     }
 }
 
-expect fun ForeignCallbackTypeLocationProviderCallback.toForeignCallback() : ForeignCallback
+expect fun ForeignCallbackTypeLocationManagerCallback.toForeignCallback() : ForeignCallback

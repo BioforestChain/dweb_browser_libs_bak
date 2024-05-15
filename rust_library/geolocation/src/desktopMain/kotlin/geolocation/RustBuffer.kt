@@ -37,14 +37,14 @@ actual val RustBuffer.dataSize: Int
 
 actual fun RustBuffer.free() =
     rustCall { status ->
-        UniFFILib.ffi_geolocation_45e2_rustbuffer_free(this, status)
+        UniFFILib.ffi_geolocation_1966_rustbuffer_free(this, status)
     }
 
 actual fun allocRustBuffer(buffer: Buffer): RustBuffer =
     rustCall { status ->
         val size = buffer.size
         var readPosition = 0L
-        UniFFILib.ffi_geolocation_45e2_rustbuffer_alloc(size.toInt(), status).also { rustBuffer: RustBuffer ->
+        UniFFILib.ffi_geolocation_1966_rustbuffer_alloc(size.toInt(), status).also { rustBuffer: RustBuffer ->
             val data = rustBuffer.data
                 ?: throw RuntimeException("RustBuffer.alloc() returned null data pointer (size=${size})")
             rustBuffer.writeField("len", size.toInt())

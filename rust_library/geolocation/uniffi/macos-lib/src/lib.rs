@@ -1,6 +1,8 @@
 use std::{
     collections::HashMap,
     ffi::{c_char, CStr},
+    fs::OpenOptions,
+    io::Write,
     os::raw::{c_double, c_int},
     sync::{Mutex, OnceLock},
 };
@@ -46,7 +48,7 @@ pub(crate) struct GeolocationResult {
 }
 
 // Init LocationProvider
-swift!(pub(crate) fn locationprovider_create(mmid: &SRString, precise: Bool, distance: Double, clLocationCallback: ClLocationCallback, authorizationStatusCallback: AuthorizationStatusCallback));
+swift!(pub(crate) fn locationprovider_create(mmid: &SRString, clLocationCallback: ClLocationCallback, authorizationStatusCallback: AuthorizationStatusCallback));
 
 swift!(pub(crate) fn microModule_requestAlwaysAuthorization(mmid: &SRString));
 
@@ -56,13 +58,13 @@ swift!(pub(crate) fn microModule_requestLocation(mmid: &SRString));
 
 swift!(pub(crate) fn microModule_currentLocationAuthorizationStatus(mmid: &SRString) -> Int);
 
-swift!(pub(crate) fn microModule_startUpdatingLocation(mmid: &SRString));
+swift!(pub(crate) fn microModule_startUpdatingLocation(mmid: &SRString, precise: Bool, distance: Double));
 
 swift!(pub(crate) fn microModule_stopUpdatingLocation(mmid: &SRString));
 
-pub trait LocationProviderCallback: Send + Sync + std::fmt::Debug {
-    fn on_authenorization_callback(&self, status: i32);
-    fn on_location_callback(
+pub trait LocationManagerCallback: Send + Sync + std::fmt::Debug {
+    fn on_authorization_status(&self, status: i32);
+    fn on_location(
         &self,
         accuracy: f64,
         latitude: f64,
@@ -74,7 +76,7 @@ pub trait LocationProviderCallback: Send + Sync + std::fmt::Debug {
     );
 }
 
-static LOCATION_HASHMAP: OnceLock<Mutex<HashMap<String, Box<dyn LocationProviderCallback>>>> =
+static LOCATION_HASHMAP: OnceLock<Mutex<HashMap<String, Box<dyn LocationManagerCallback>>>> =
     OnceLock::new();
 
 fn c_char_to_string(s: *const c_char) -> String {
@@ -93,11 +95,9 @@ fn c_double_to_option_f64(d: *const c_double) -> Option<f64> {
 
 pub fn location_provider_create(
     mmid: String,
-    precise: bool,
-    distance: f64,
-    callback: Box<dyn LocationProviderCallback>,
+    callback: Box<dyn LocationManagerCallback>,
 ) {
-    println!("QAQ start");
+    write_log("QAQ start");
     {
         LOCATION_HASHMAP
             .get_or_init(Default::default)
@@ -117,14 +117,14 @@ pub fn location_provider_create(
             heading: *const c_double,
             speed: *const c_double,
         ) {
-            println!("mmid: {}, accuracy: {}", c_char_to_string(mmid), accuracy);
+            write_log(format!("mmid: {}, accuracy: {}", c_char_to_string(mmid), accuracy).as_str());
             if let Some(callback) = LOCATION_HASHMAP
                 .get_or_init(Default::default)
                 .lock()
                 .unwrap()
                 .get(c_char_to_string(mmid).as_str())
             {
-                callback.on_location_callback(
+                callback.on_location(
                     accuracy,
                     latitude,
                     longitude,
@@ -140,10 +140,13 @@ pub fn location_provider_create(
             mmid: *const c_char,
             authorization_status: c_int,
         ) {
-            println!(
-                "mmid: {} authorization_status: {}",
-                c_char_to_string(mmid),
-                authorization_status
+            write_log(
+                format!(
+                    "mmid: {} authorization_status: {}",
+                    c_char_to_string(mmid),
+                    authorization_status
+                )
+                .as_str(),
             );
             if let Some(callback) = LOCATION_HASHMAP
                 .get_or_init(Default::default)
@@ -151,19 +154,17 @@ pub fn location_provider_create(
                 .unwrap()
                 .get(c_char_to_string(mmid).as_str())
             {
-                callback.on_authenorization_callback(authorization_status);
+                callback.on_authorization_status(authorization_status);
             }
         }
 
         locationprovider_create(
             &mmid.as_str().into(),
-            precise,
-            distance,
             ClLocationCallback(location_callback),
             AuthorizationStatusCallback(authorization_status_callback),
         );
     };
-    println!("QAQ finish");
+    write_log("QAQ finish");
 }
 
 pub fn request_always_authorization(mmid: String) {
@@ -171,7 +172,9 @@ pub fn request_always_authorization(mmid: String) {
 }
 
 pub fn request_when_in_use_authorization(mmid: String) {
+    write_log("QAQ requestWhenInUseAuthorization start");
     unsafe { microModule_requestWhenInUseAuthorization(&mmid.as_str().into()) }
+    write_log("QAQ requestWhenInUseAuthorization end");
 }
 
 pub fn request_location(mmid: String) {
@@ -183,16 +186,16 @@ pub fn current_location_authorization_status(mmid: String) -> i32 {
     status as i32
 }
 
-pub fn start_updating_location(mmid: String) {
-    println!("QAQ start updating before");
-    unsafe { microModule_startUpdatingLocation(&mmid.as_str().into()) }
-    println!("QAQ start updating after");
+pub fn start_updating_location(mmid: String, precise: bool, distance: f64) {
+    write_log("QAQ start updating before");
+    unsafe { microModule_startUpdatingLocation(&mmid.as_str().into(), precise, distance) }
+    write_log("QAQ start updating after");
 }
 
 pub fn stop_updating_location(mmid: String) {
-    println!("QAQ stop updating before");
+    write_log("QAQ stop updating before");
     unsafe { microModule_stopUpdatingLocation(&mmid.as_str().into()) }
-    println!("QAQ stop updating after");
+    write_log("QAQ stop updating after");
     {
         LOCATION_HASHMAP
             .get_or_init(Default::default)
@@ -200,4 +203,10 @@ pub fn stop_updating_location(mmid: String) {
             .unwrap()
             .remove(mmid.as_str());
     }
+}
+
+fn write_log(message: &str) {
+    let mut file = OpenOptions::new().write(true).append(true).open("/Users/bfs-kingsword09/Library/Application Support/dweb-browser/data/geolocation.sys.dweb/log.txt").unwrap();
+    let new_message = format!("rust => {}\n", message.to_string());
+    _ = file.write_all(new_message.as_bytes());
 }

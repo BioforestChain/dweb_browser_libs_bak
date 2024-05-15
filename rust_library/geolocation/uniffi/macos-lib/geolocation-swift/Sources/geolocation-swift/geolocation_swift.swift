@@ -6,7 +6,12 @@ import SwiftRs
 
 class LocationProviderManager: NSObject {
     static var shared = LocationProviderManager()
-    static let semaphore = DispatchSemaphore(value: 0)
+    static func writeLog(_ message: String) {
+        if let fileHandle = FileHandle(forWritingAtPath: "/Users/bfs-kingsword09/Library/Application Support/dweb-browser/data/geolocation.sys.dweb/log.txt") {
+            _ = try? fileHandle.seekToEnd()
+            fileHandle.write(Data("swift => \(message) \n".utf8))
+        }
+    }
 
     private var locationProviderMap: [String: LocationProvider] = [:]
 
@@ -59,6 +64,8 @@ class LocationProvider: NSObject, CLLocationManagerDelegate {
         self.locationManager = locationManager
         self.clLocationCallback = clLocationCallback
         self.authorizationStatusCallback = authorizationStatusCallback
+        super.init()
+        self.locationManager.delegate = self
     }
 
     func requestAlwaysAuthorization() {
@@ -66,7 +73,9 @@ class LocationProvider: NSObject, CLLocationManagerDelegate {
     }
 
     func requestWhenInUseAuthorization() {
+        LocationProviderManager.writeLog("QAQ requestWhenInUseAuthorization start")
         locationManager.requestWhenInUseAuthorization()
+        LocationProviderManager.writeLog("QAQ requestWhenInUseAuthorization end")
     }
 
     func requestLocation() {
@@ -74,10 +83,10 @@ class LocationProvider: NSObject, CLLocationManagerDelegate {
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        print("QAQ locationManager=\(locations.last)")
+        LocationProviderManager.writeLog("QAQ locationManager=\(locations.last)")
         if let clLocation = locations.last {
             clLocationCallback(
-                self.mmid,
+                mmid,
                 max(clLocation.horizontalAccuracy, clLocation.verticalAccuracy),
                 clLocation.coordinate.latitude,
                 clLocation.coordinate.longitude,
@@ -88,20 +97,19 @@ class LocationProvider: NSObject, CLLocationManagerDelegate {
                 clLocation.speed < 0 ? nil : withUnsafePointer(to: clLocation.speed) { UnsafePointer($0) }
             )
         }
-        LocationProviderManager.semaphore.signal()
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        authorizationStatusCallback(self.mmid, Int(manager.authorizationStatus.rawValue))
+        LocationProviderManager.writeLog("current status=>\(manager.authorizationStatus.rawValue)")
+        authorizationStatusCallback(mmid, Int(manager.authorizationStatus.rawValue))
     }
-    
+
     func currentLocationAuthorizationStatus() -> Int {
-        return Int(self.locationManager.authorizationStatus.rawValue)
+        return Int(locationManager.authorizationStatus.rawValue)
     }
 
     func startUpdatingLocation() {
         locationManager.startUpdatingLocation()
-        print("QAQ location=\(locationManager.location)")
     }
 
     func stopUpdatingLocation() {
@@ -112,33 +120,21 @@ class LocationProvider: NSObject, CLLocationManagerDelegate {
 @_cdecl("locationprovider_create")
 func locationProviderCreate(
     mmid: SRString,
-    precise: Bool,
-    distance: Double,
 
     clLocationCallback: @escaping @convention(c) (
         UnsafePointer<CChar>, Double, Double, Double, UnsafePointer<Double>?, UnsafePointer<Double>?, UnsafePointer<Double>?, UnsafePointer<Double>?
     ) -> Void,
     authorizationStatusCallback: @escaping @convention(c) (UnsafePointer<CChar>, Int) -> Void
 ) {
-    print("QAQ newLocationProvider start mmid:\(mmid) precise:\(precise) distance:\(distance)")
+    LocationProviderManager.writeLog("QAQ newLocationProvider start mmid:\(mmid)")
     let clLocationManager = CLLocationManager()
 
-    if precise {
-        clLocationManager.desiredAccuracy = kCLLocationAccuracyBest
-    } else {
-        clLocationManager.desiredAccuracy = kCLLocationAccuracyKilometer
-    }
-
-    clLocationManager.distanceFilter = distance
-    print("auth => \(clLocationManager.authorizationStatus)")
-    clLocationManager.requestAlwaysAuthorization()
     let locationProvider = LocationProvider(mmid.toString(), clLocationManager, clLocationCallback, authorizationStatusCallback)
-    clLocationManager.delegate = locationProvider
 
     LocationProviderManager.shared.storeLocationProvider(
         mmid.toString(), locationProvider
     )
-    print("QAQ newLocationProvider finish")
+    LocationProviderManager.writeLog("QAQ newLocationProvider finish")
 }
 
 @_cdecl("microModule_requestAlwaysAuthorization")
@@ -165,32 +161,38 @@ func requestLocation(mmid: SRString) {
 @_cdecl("microModule_currentLocationAuthorizationStatus")
 func currentLocationAuthorizationStatus(mmid: SRString) -> Int {
     if let provider = LocationProviderManager.shared.getLocationProvider(mmid.toString()) {
-        print("QAQ currentLocationAuthorizationStatus mmid=\(mmid) status=\(provider.currentLocationAuthorizationStatus())")
+        LocationProviderManager.writeLog("QAQ currentLocationAuthorizationStatus mmid=\(mmid) status=\(provider.currentLocationAuthorizationStatus())")
         return provider.currentLocationAuthorizationStatus()
     } else {
-        print("QAQ notDetermined")
+        LocationProviderManager.writeLog("QAQ notDetermined")
         return Int(CLAuthorizationStatus.notDetermined.rawValue)
     }
 }
 
 @_cdecl("microModule_startUpdatingLocation")
-func startUpdatingLocation(mmid: SRString) {
+func startUpdatingLocation(mmid: SRString, precise: Bool, distance: Double) {
     if let provider = LocationProviderManager.shared.getLocationProvider(mmid.toString()) {
-        print("QAQ startUpdatingLocation start")
+        LocationProviderManager.writeLog("QAQ startUpdatingLocation start")
+        if precise {
+            provider.locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        } else {
+            provider.locationManager.desiredAccuracy = kCLLocationAccuracyKilometer
+        }
+
+        provider.locationManager.distanceFilter = distance
         provider.startUpdatingLocation()
-        print("QAQ startUpdatingLocation end")
+        LocationProviderManager.writeLog("QAQ startUpdatingLocation end")
     } else {
-        print("QAQ startUpdatingLocation failed")
+        LocationProviderManager.writeLog("QAQ startUpdatingLocation failed")
     }
 }
 
 @_cdecl("microModule_stopUpdatingLocation")
 func stopUpdatingLocation(mmid: SRString) {
     if let provider = LocationProviderManager.shared.getLocationProvider(mmid.toString()) {
-        LocationProviderManager.semaphore.wait()
-        print("QAQ stopUpdatingLocation start")
+        LocationProviderManager.writeLog("QAQ stopUpdatingLocation start")
         provider.stopUpdatingLocation()
         LocationProviderManager.shared.removeLocationProvider(mmid.toString())
-        print("QAQ stopUpdatingLocation stop")
+        LocationProviderManager.writeLog("QAQ stopUpdatingLocation stop")
     }
 }

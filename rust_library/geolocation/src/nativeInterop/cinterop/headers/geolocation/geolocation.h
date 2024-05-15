@@ -48,51 +48,51 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V4 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_geolocation_45e2_LocationProviderCallback_init_callback(
+void ffi_geolocation_1966_LocationManagerCallback_init_callback(
       ForeignCallback  _Nonnull callback_stub,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_location_provider_create(
-      RustBuffer mmid,int8_t precise,double distance,uint64_t callback,
+void geolocation_1966_location_provider_create(
+      RustBuffer mmid,uint64_t callback,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_request_always_authorization(
+void geolocation_1966_request_always_authorization(
       RustBuffer mmid,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_request_when_in_use_authorization(
+void geolocation_1966_request_when_in_use_authorization(
       RustBuffer mmid,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_request_location(
+void geolocation_1966_request_location(
       RustBuffer mmid,
     RustCallStatus *_Nonnull out_status
     );
-int32_t geolocation_45e2_current_location_authorization_status(
+int32_t geolocation_1966_current_location_authorization_status(
       RustBuffer mmid,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_start_updating_location(
+void geolocation_1966_start_updating_location(
+      RustBuffer mmid,int8_t precise,double distance,
+    RustCallStatus *_Nonnull out_status
+    );
+void geolocation_1966_stop_updating_location(
       RustBuffer mmid,
     RustCallStatus *_Nonnull out_status
     );
-void geolocation_45e2_stop_updating_location(
-      RustBuffer mmid,
-    RustCallStatus *_Nonnull out_status
-    );
-RustBuffer ffi_geolocation_45e2_rustbuffer_alloc(
+RustBuffer ffi_geolocation_1966_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_geolocation_45e2_rustbuffer_from_bytes(
+RustBuffer ffi_geolocation_1966_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_geolocation_45e2_rustbuffer_free(
+void ffi_geolocation_1966_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_geolocation_45e2_rustbuffer_reserve(
+RustBuffer ffi_geolocation_1966_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );
