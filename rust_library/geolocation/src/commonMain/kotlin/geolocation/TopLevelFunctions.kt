@@ -2,52 +2,38 @@ package geolocation
 
 
 
-fun `locationProviderCreate`(`mmid`: String, `precise`: Boolean, `distance`: Double, `callback`: LocationProviderCallback) =
+fun `locationProviderCreate`(`mmid`: String, `callback`: LocationManagerCallback) =
     
     rustCall() { _status ->
-    UniFFILib.geolocation_45e2_location_provider_create(FfiConverterString.lower(`mmid`), FfiConverterBoolean.lower(`precise`), FfiConverterDouble.lower(`distance`), FfiConverterTypeLocationProviderCallback.lower(`callback`), _status)
-}
-
-
-fun `requestAlwaysAuthorization`(`mmid`: String) =
-    
-    rustCall() { _status ->
-    UniFFILib.geolocation_45e2_request_always_authorization(FfiConverterString.lower(`mmid`), _status)
-}
-
-
-fun `requestWhenInUseAuthorization`(`mmid`: String) =
-    
-    rustCall() { _status ->
-    UniFFILib.geolocation_45e2_request_when_in_use_authorization(FfiConverterString.lower(`mmid`), _status)
+    UniFFILib.geolocation_f60a_location_provider_create(FfiConverterString.lower(`mmid`), FfiConverterTypeLocationManagerCallback.lower(`callback`), _status)
 }
 
 
 fun `requestLocation`(`mmid`: String) =
     
     rustCall() { _status ->
-    UniFFILib.geolocation_45e2_request_location(FfiConverterString.lower(`mmid`), _status)
+    UniFFILib.geolocation_f60a_request_location(FfiConverterString.lower(`mmid`), _status)
 }
 
 
 fun `currentLocationAuthorizationStatus`(`mmid`: String): Int {
     return FfiConverterInt.lift(
     rustCall() { _status ->
-    UniFFILib.geolocation_45e2_current_location_authorization_status(FfiConverterString.lower(`mmid`), _status)
+    UniFFILib.geolocation_f60a_current_location_authorization_status(FfiConverterString.lower(`mmid`), _status)
 })
 }
 
 
 
-fun `startUpdatingLocation`(`mmid`: String) =
+fun `startUpdatingLocation`(`mmid`: String, `precise`: Boolean, `distance`: Double) =
     
     rustCall() { _status ->
-    UniFFILib.geolocation_45e2_start_updating_location(FfiConverterString.lower(`mmid`), _status)
+    UniFFILib.geolocation_f60a_start_updating_location(FfiConverterString.lower(`mmid`), FfiConverterBoolean.lower(`precise`), FfiConverterDouble.lower(`distance`), _status)
 }
 
 
 fun `stopUpdatingLocation`(`mmid`: String) =
     
     rustCall() { _status ->
-    UniFFILib.geolocation_45e2_stop_updating_location(FfiConverterString.lower(`mmid`), _status)
+    UniFFILib.geolocation_f60a_stop_updating_location(FfiConverterString.lower(`mmid`), _status)
 }

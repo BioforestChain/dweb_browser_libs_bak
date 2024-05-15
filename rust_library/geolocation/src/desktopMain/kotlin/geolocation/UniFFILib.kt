@@ -18,67 +18,57 @@ private fun findLibraryName(): String {
 actual object UniFFILib : Library {
     init {
         Native.register(UniFFILib::class.java, findLibraryName())
-        FfiConverterTypeLocationProviderCallback.register(this)
+        FfiConverterTypeLocationManagerCallback.register(this)
         
     }
 
-    @JvmName("ffi_geolocation_45e2_LocationProviderCallback_init_callback")
-    actual external fun ffi_geolocation_45e2_LocationProviderCallback_init_callback(`callbackStub`: ForeignCallback,
+    @JvmName("ffi_geolocation_f60a_LocationManagerCallback_init_callback")
+    actual external fun ffi_geolocation_f60a_LocationManagerCallback_init_callback(`callbackStub`: ForeignCallback,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("geolocation_45e2_location_provider_create")
-    actual external fun geolocation_45e2_location_provider_create(`mmid`: RustBuffer,`precise`: Byte,`distance`: Double,`callback`: ULong,
+    @JvmName("geolocation_f60a_location_provider_create")
+    actual external fun geolocation_f60a_location_provider_create(`mmid`: RustBuffer,`callback`: ULong,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("geolocation_45e2_request_always_authorization")
-    actual external fun geolocation_45e2_request_always_authorization(`mmid`: RustBuffer,
+    @JvmName("geolocation_f60a_request_location")
+    actual external fun geolocation_f60a_request_location(`mmid`: RustBuffer,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("geolocation_45e2_request_when_in_use_authorization")
-    actual external fun geolocation_45e2_request_when_in_use_authorization(`mmid`: RustBuffer,
-    _uniffi_out_err: RustCallStatus
-    ): Unit
-
-    @JvmName("geolocation_45e2_request_location")
-    actual external fun geolocation_45e2_request_location(`mmid`: RustBuffer,
-    _uniffi_out_err: RustCallStatus
-    ): Unit
-
-    @JvmName("geolocation_45e2_current_location_authorization_status")
-    actual external fun geolocation_45e2_current_location_authorization_status(`mmid`: RustBuffer,
+    @JvmName("geolocation_f60a_current_location_authorization_status")
+    actual external fun geolocation_f60a_current_location_authorization_status(`mmid`: RustBuffer,
     _uniffi_out_err: RustCallStatus
     ): Int
 
-    @JvmName("geolocation_45e2_start_updating_location")
-    actual external fun geolocation_45e2_start_updating_location(`mmid`: RustBuffer,
+    @JvmName("geolocation_f60a_start_updating_location")
+    actual external fun geolocation_f60a_start_updating_location(`mmid`: RustBuffer,`precise`: Byte,`distance`: Double,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("geolocation_45e2_stop_updating_location")
-    actual external fun geolocation_45e2_stop_updating_location(`mmid`: RustBuffer,
+    @JvmName("geolocation_f60a_stop_updating_location")
+    actual external fun geolocation_f60a_stop_updating_location(`mmid`: RustBuffer,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("ffi_geolocation_45e2_rustbuffer_alloc")
-    actual external fun ffi_geolocation_45e2_rustbuffer_alloc(`size`: Int,
+    @JvmName("ffi_geolocation_f60a_rustbuffer_alloc")
+    actual external fun ffi_geolocation_f60a_rustbuffer_alloc(`size`: Int,
     _uniffi_out_err: RustCallStatus
     ): RustBuffer
 
-    @JvmName("ffi_geolocation_45e2_rustbuffer_from_bytes")
-    actual external fun ffi_geolocation_45e2_rustbuffer_from_bytes(`bytes`: ForeignBytes,
+    @JvmName("ffi_geolocation_f60a_rustbuffer_from_bytes")
+    actual external fun ffi_geolocation_f60a_rustbuffer_from_bytes(`bytes`: ForeignBytes,
     _uniffi_out_err: RustCallStatus
     ): RustBuffer
 
-    @JvmName("ffi_geolocation_45e2_rustbuffer_free")
-    actual external fun ffi_geolocation_45e2_rustbuffer_free(`buf`: RustBuffer,
+    @JvmName("ffi_geolocation_f60a_rustbuffer_free")
+    actual external fun ffi_geolocation_f60a_rustbuffer_free(`buf`: RustBuffer,
     _uniffi_out_err: RustCallStatus
     ): Unit
 
-    @JvmName("ffi_geolocation_45e2_rustbuffer_reserve")
-    actual external fun ffi_geolocation_45e2_rustbuffer_reserve(`buf`: RustBuffer,`additional`: Int,
+    @JvmName("ffi_geolocation_f60a_rustbuffer_reserve")
+    actual external fun ffi_geolocation_f60a_rustbuffer_reserve(`buf`: RustBuffer,`additional`: Int,
     _uniffi_out_err: RustCallStatus
     ): RustBuffer
 
