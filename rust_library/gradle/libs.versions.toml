@@ -8,11 +8,12 @@ buildToolsVersion = "29.0.2"
 minSdkVersion = "28" # Int
 targetSdkVersion = "34" # Int
 
-kotlinx-coroutines = "1.8.0"
-kotlinx-atomicfu-version = "0.24.0"
-okio-version = "3.9.0"
-kotlinx-datetime-version = "0.6.0"
-java-jna-version = "5.13.0"
+kotlinx-coroutines = "1.9.0"
+kotlinx-atomicfu-version = "0.25.0"
+okio-version = "3.9.1"
+kotlinx-datetime-version = "0.6.1"
+java-jna-version = "5.14.0"
+maven-version = "0.29.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -21,9 +22,13 @@ kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 squareup-okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio-version" }
 java-jna = { module = "net.java.dev.jna:jna", version.ref = "java-jna-version" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+maven-publish-gradle-plugin = { module = "com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin", version.ref = "maven-version" }
+android-gradle-plugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
+kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlinxMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "maven-version" }

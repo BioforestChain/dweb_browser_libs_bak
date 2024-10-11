@@ -1,57 +1,71 @@
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.signing
-
 plugins {
-  `maven-publish` // 发布插件
-  signing // 签名插件，发布的时候需要对包进行签名
+  id("com.vanniktech.maven.publish")
 }
 
 afterEvaluate {
   val properties = project.localProperties()
+
   publishing {
-    publications {
-      // 发布一个统一的 multiplatform 版本，整合所有支持的目标平台
-      create<MavenPublication>("multiplatform") {
-        from(components["kotlin"])  // 自动发布所有 Kotlin Multiplatform 支持的目标平台
-        groupId = "io.github.BioforestChain"
-        artifactId = project.name
-        version = project.version.toString()
-        println("开始签名=> ${project.description} version:${project.version} ${project.name}")
-        pom {
-          name = project.name
-          description = project.description
-          url =
-            "https://github.com/BioforestChain/dweb_browser_libs/tree/main/rust_library/${project.name}"
-        }
-      }
-    }
     repositories {
-      // 远程 Maven 仓库
-      maven {
+      maven("https://maven.pkg.github.com/BioforestChain/dweb_browser_libs") {
+        println("QAQ project.name=${project.name}")
         name = project.name
-        // change URLs to point to your repos, e.g. http://my.org/repo
-        val releasesRepoUrl = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-        val snapshotsRepoUrl = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-        url = if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
-        println("username: ${properties.getString("sonatypePassword")}")
+        description = project.description
+
         credentials {
-          username = properties.getString("sonatypeUsername")
-          password = properties.getString("sonatypePassword")
+          username = properties.getString("gpr.user")
+          password = properties.getString("gpr.key")
         }
       }
     }
   }
 
-  signing {
-    setRequired {
-      gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
-    }
-    useInMemoryPgpKeys(
-      properties.getString("signing.keyId"),
-      properties.getString("signing.secretKeyRingFile"),
-      properties.getString("signing.password"),
+  mavenPublishing {
+    coordinates(
+      groupId = "org.dweb_browser",
+      artifactId = project.name,
+      version = project.version.toString()
     )
-    sign(publishing.publications["multiplatform"])
+
+    pom {
+      name.set("Dweb KMP Library")
+      description.set(project.description)
+      inceptionYear.set("2024")
+      url.set("https://github.com/BioforestChain/dweb_browser_libs")
+
+      licenses {
+        license {
+          name.set("MIT")
+          url.set("https://opensource.org/licenses/MIT")
+        }
+      }
+
+      // Specify developers information
+      developers {
+        developer {
+          id.set("BioforestChain")
+          name.set("dweb")
+          email.set("developer@bfchain.org")
+        }
+      }
+
+      // Specify SCM information
+      scm {
+        url.set("https://github.com/BioforestChain/dweb_browser_libs")
+      }
+    }
   }
+
+  tasks.register("${project.name}_publish") {
+    println("QAQ xxx")
+    exec {
+      workingDir = projectDir
+      commandLine("../gradlew", "publishAllPublicationsTo${project.name.uppercase()}Repository")
+    }
+  }
+//  tasks.named("DwebPublish") {
+//    println("QAQ 111")
+//    dependsOn("${project.name}_publish")
+//  }
 }
 

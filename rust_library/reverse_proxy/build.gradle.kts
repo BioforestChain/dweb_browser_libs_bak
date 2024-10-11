@@ -1,7 +1,10 @@
+import com.android.build.api.AndroidPluginVersion
+
 plugins {
   id(libs.plugins.kotlinxMultiplatform.get().pluginId)
   id(libs.plugins.androidLibrary.get().pluginId)
   `publish-plugin`
+  `dweb-publish`
 }
 
 plugins.withId("publish-plugin") {
@@ -16,6 +19,7 @@ kotlin {
         jvmTarget = libs.versions.jvmTarget.get()
       }
     }
+    publishLibraryVariants("release")
   }
 
   jvmToolchain {

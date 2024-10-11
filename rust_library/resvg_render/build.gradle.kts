@@ -14,6 +14,7 @@ kotlin {
         jvmTarget = libs.versions.jvmTarget.get()
       }
     }
+    publishLibraryVariants("release")
   }
 
   jvm("desktop")
